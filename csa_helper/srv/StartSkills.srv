@@ -1,0 +1,8 @@
+string current_task
+string product_type
+std_msgs/ColorRGBA color
+int32 id
+string station_name
+string agv_name
+---
+bool task_accepted

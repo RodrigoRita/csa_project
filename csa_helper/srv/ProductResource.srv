@@ -1,0 +1,7 @@
+string current_task
+string product_type
+int32 id
+string location_str
+---
+csa_helper/Agv agv
+csa_helper/Station station

@@ -1,0 +1,4 @@
+geometry_msgs/Pose2D destination
+---
+csa_helper/Agv agv
+float32 distance # Used for the RL model using distance as time spent on movement

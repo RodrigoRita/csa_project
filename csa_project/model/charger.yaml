@@ -1,0 +1,37 @@
+bodies:
+  - name: charger_body
+    type: static
+    color: [1.0, 1.0, 0.0, 1.0] # yellow
+
+    footprints:
+      # Left arm of the U
+      - type: polygon
+        points:
+          - [-0.35, 0.1]
+          - [-0.35, 0.2]
+          - [-0.30, 0.2]
+          - [-0.30, 0.1]
+        density: 0
+        layers: ["base_layer"]
+
+      # Right arm of the U
+      - type: polygon
+        points:
+          - [0.35, 0.1]
+          - [0.35, 0.2]
+          - [0.30, 0.2]
+          - [0.30, 0.1]
+        density: 0
+        layers: ["base_layer"]
+
+      # Back bar of the U (bottom)
+      - type: polygon
+        points:
+          - [-0.35, -0.2]
+          - [0.35, -0.2]
+          - [0.35, 0.1]
+          - [-0.35, 0.1]
+        density: 0
+        layers: ["base_layer"]
+
+plugins: []

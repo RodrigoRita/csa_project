@@ -1,0 +1,140 @@
+# Flatland world file defining 8 robots, 8 charger stations, and 12 workstations
+properties: {}
+
+layers:
+  - name: "base_layer"
+    map: "/home/vscode/trsa_ws/src/csa_project/world/factory_map.yaml"
+  - name: "blank_layer"
+    map: "/home/vscode/trsa_ws/src/csa_project/world/blank_map.yaml"
+  - name: "AGV1_layer"
+    map: "/home/vscode/trsa_ws/src/csa_project/world/AGV1_layer.yaml"
+  - name: "AGV2_layer"
+    map: "/home/vscode/trsa_ws/src/csa_project/world/AGV2_layer.yaml"
+  - name: "AGV3_layer"
+    map: "/home/vscode/trsa_ws/src/csa_project/world/AGV3_layer.yaml"
+  - name: "AGV4_layer"
+    map: "/home/vscode/trsa_ws/src/csa_project/world/AGV4_layer.yaml"
+  - name: "AGV5_layer"
+    map: "/home/vscode/trsa_ws/src/csa_project/world/AGV5_layer.yaml"
+  - name: "AGV6_layer"
+    map: "/home/vscode/trsa_ws/src/csa_project/world/AGV6_layer.yaml"
+  - name: "AGV7_layer"
+    map: "/home/vscode/trsa_ws/src/csa_project/world/AGV7_layer.yaml"
+  - name: "AGV8_layer"
+    map: "/home/vscode/trsa_ws/src/csa_project/world/AGV8_layer.yaml"
+
+# --- World geometry ---
+models:
+  # --- AGVs ---
+  - name: AGV_1
+    model: "/home/vscode/trsa_ws/src/csa_project/model/AGV1.yaml"
+    pose: [3.0, 3.0, 1.5708]
+  - name: AGV_2
+    model: "/home/vscode/trsa_ws/src/csa_project/model/AGV2.yaml"
+    pose: [8.0, 3.0, 1.5708]
+  - name: AGV_3
+    model: "/home/vscode/trsa_ws/src/csa_project/model/AGV3.yaml"
+    pose: [13.0, 3.0, 1.5708]
+  - name: AGV_4
+    model: "/home/vscode/trsa_ws/src/csa_project/model/AGV4.yaml"
+    pose: [18.0, 3.0, 1.5708]
+  - name: AGV_5
+    model: "/home/vscode/trsa_ws/src/csa_project/model/AGV5.yaml"
+    pose: [23.0, 3.0, 1.5708]
+  - name: AGV_6
+    model: "/home/vscode/trsa_ws/src/csa_project/model/AGV6.yaml"
+    pose: [28.0, 3.0, 1.5708]
+  - name: AGV_7
+    model: "/home/vscode/trsa_ws/src/csa_project/model/AGV7.yaml"
+    pose: [33.0, 3.0, 1.5708]
+  - name: AGV_8
+    model: "/home/vscode/trsa_ws/src/csa_project/model/AGV8.yaml"
+    pose: [38.0, 3.0, 1.5708]
+
+  # --- 12 Workstations + Warehouse (distributed in 2 horizontal lines w/ 5 each and one with the quality check stations ) ---
+  - name: Warehouse
+    model: "/home/vscode/trsa_ws/src/csa_project/model/warehouse.yaml"
+    pose: [1.0, 10.0, 0.0]
+  #- name: Quality_Station_1
+  #  namespace: "Quality_Station_1"
+  #  model: "/home/vscode/trsa_ws/src/csa_project/model/workstation.yaml"
+  #  pose: [6, 6.0, 0.0]
+  - name: Station_1
+    namespace: "Station_1"
+    model: "/home/vscode/trsa_ws/src/csa_project/model/workstation.yaml"
+    pose: [12.0, 6.0, 0.0]
+  - name: Station_2
+    namespace: "Station_2"
+    model: "/home/vscode/trsa_ws/src/csa_project/model/workstation.yaml"
+    pose: [18.0, 6.0, 0.0]
+  - name: Station_3
+    namespace: "Station_3"
+    model: "/home/vscode/trsa_ws/src/csa_project/model/workstation.yaml"
+    pose: [24.0, 6.0, 0.0]
+  - name: Station_4
+    namespace: "Station_4"
+    model: "/home/vscode/trsa_ws/src/csa_project/model/workstation.yaml"
+    pose: [30.0, 6.0, 0.0]
+  - name: Station_5
+    namespace: "Station_5"
+    model: "/home/vscode/trsa_ws/src/csa_project/model/workstation.yaml"
+    pose: [36.0, 6.0, 0.0]
+
+  #- name: Quality_Station_2
+  #  namespace: "Quality_Station_2"
+  #  model: "/home/vscode/trsa_ws/src/csa_project/model/workstation.yaml"
+  #  pose: [6.0, 12.0, 0.0]
+  - name: Station_6
+    namespace: "Station_6"
+    model: "/home/vscode/trsa_ws/src/csa_project/model/workstation.yaml"
+    pose: [12.0, 12.0, 0.0]
+  - name: Station_7
+    namespace: "Station_7"
+    model: "/home/vscode/trsa_ws/src/csa_project/model/workstation.yaml"
+    pose: [18.0, 12.0, 0.0]
+  - name: Station_8
+    namespace: "Station_8"
+    model: "/home/vscode/trsa_ws/src/csa_project/model/workstation.yaml"
+    pose: [24.0, 12.0, 0.0]
+  - name: Station_9
+    namespace: "Station_9"
+    model: "/home/vscode/trsa_ws/src/csa_project/model/workstation.yaml"
+    pose: [30.0, 12.0, 0.0]
+  - name: Station_10
+    namespace: "Station_10"
+    model: "/home/vscode/trsa_ws/src/csa_project/model/workstation.yaml"
+    pose: [36.0, 12.0, 0.0]
+
+  # --- 8 Charger stations (along bottom wall) ---
+  - name: charger_1
+    namespace: "charger_1"
+    model: "/home/vscode/trsa_ws/src/csa_project/model/charger.yaml"
+    pose: [3.0, 1.0, 0.0]
+  - name: charger_2
+    namespace: "charger_2"
+    model: "/home/vscode/trsa_ws/src/csa_project/model/charger.yaml"
+    pose: [8.0, 1.0, 0.0]
+  - name: charger_3
+    namespace: "charger_3"
+    model: "/home/vscode/trsa_ws/src/csa_project/model/charger.yaml"
+    pose: [13.0, 1.0, 0.0]
+  - name: charger_4
+    namespace: "charger_4"
+    model: "/home/vscode/trsa_ws/src/csa_project/model/charger.yaml"
+    pose: [18.0, 1.0, 0.0]
+  - name: charger_5
+    namespace: "charger_5"
+    model: "/home/vscode/trsa_ws/src/csa_project/model/charger.yaml"
+    pose: [23.0, 1.0, 0.0]
+  - name: charger_6
+    namespace: "charger_6"
+    model: "/home/vscode/trsa_ws/src/csa_project/model/charger.yaml"
+    pose: [27.0, 1.0, 0.0]
+  - name: charger_7
+    namespace: "charger_7"
+    model: "/home/vscode/trsa_ws/src/csa_project/model/charger.yaml"
+    pose: [33.0, 1.0, 0.0]
+  - name: charger_8
+    namespace: "charger_8"
+    model: "/home/vscode/trsa_ws/src/csa_project/model/charger.yaml"
+    pose: [38.0, 1.0, 0.0]

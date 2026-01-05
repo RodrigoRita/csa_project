@@ -1,0 +1,13 @@
+# Goal
+string task
+string station
+float32 skill_time
+string agv
+std_msgs/ColorRGBA color
+---
+# Result
+bool success
+string message
+---
+# Feedback
+string state

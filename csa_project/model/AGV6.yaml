@@ -1,0 +1,130 @@
+bodies:
+  - name: AGV6_base_link
+    type: dynamic
+    color: [1, 1, 1, 0.75]
+    footprints:
+      - type: polygon
+        density: 100
+        layers: ["AGV6_layer"]
+        points:
+          - [-0.515, -0.1685]
+          - [0.04, -0.1685]
+          - [0.15, -0.05]
+          - [0.15, 0.05]
+          - [0.04, 0.1685]
+          - [-0.515, 0.1685]
+
+  - name: AGV6_left_wheel
+    color: [1, 1, 1, 0.75]
+    footprints:
+      - type: polygon
+        density: 1.0
+        layers: ["AGV6_layer"]
+        points:
+          - [0.04375, -0.01275]
+          - [0.04375, 0.01275]
+          - [-0.04375, 0.01275]
+          - [-0.04375, -0.01275]
+
+  - name: AGV6_right_wheel
+    color: [1, 1, 1, 0.75]
+    footprints:
+      - type: polygon
+        density: 1.0
+        layers: ["AGV6_layer"]
+        points:
+          - [0.04375, -0.01275]
+          - [0.04375, 0.01275]
+          - [-0.04375, 0.01275]
+          - [-0.04375, -0.01275]
+
+  - name: AGV6_caster_wheel
+    color: [0.7, 0.7, 0.7, 0.75]
+    footprints:
+      - type: circle
+        radius: 0.015
+        density: 0.5
+        layers: ["AGV6_layer"]
+
+  - name: AGV6_product
+    color: [0.0, 0.0, 0.0, 0.0]
+    footprints:
+      - type: circle
+        radius: 0.03
+        density: 0.5
+        collision: false
+        layers: ["AGV6_layer"]
+
+joints:
+  # Left drive wheel joint
+  - type: revolute
+    name: left_wheel_joint
+    bodies:
+      - name: AGV6_left_wheel
+        anchor: [0, 0]
+      - name: AGV6_base_link
+        anchor: [-0.415, 0.145]
+
+  # Right drive wheel joint
+  - type: revolute
+    name: right_wheel_joint
+    bodies:
+      - name: AGV6_right_wheel
+        anchor: [0, 0]
+      - name: AGV6_base_link
+        anchor: [-0.415, -0.145]
+
+  # Passive rear caster for stability
+  - type: weld
+    name: caster_weld
+    bodies:
+      - name: AGV6_caster_wheel
+        anchor: [0, 0]
+      - name: AGV6_base_link
+        anchor: [0.125, 0.0]
+
+  - type: weld
+    name: product_weld
+    bodies:
+      - name: AGV6_product
+        anchor: [0, 0]
+      - name: AGV6_base_link
+        anchor: [0.0, 0.0]
+
+plugins:
+  # Publishes TFs for all bodies in this model
+  - type: ModelTfPublisher
+    name: tf_publisher
+    publish_tf_world: false
+    world_frame_id: map
+
+  # DiffDrive motion plugin
+  - type: DiffDrive
+    name: diff_drive
+    body: AGV6_base_link
+    odom_frame_id: AGV6_odom
+    twist_sub: /AGV6/cmd_vel
+    ground_truth_frame_id: AGV6_odom
+    odom_pub: /AGV6/odom
+
+  # Laser scanner
+  - type: Laser
+    name: AGV6_laser_front
+    frame: AGV6_laser_front
+    topic: /AGV6/scan
+    body: AGV6_base_link
+    broadcast_tf: true
+    origin: [0.2, 0, 0] # halve the offset
+    range: 20
+    layers: ["base_layer"]
+    angle:
+      min: -2.356194490192345
+      max: 2.356194490192345
+      increment: 0.004363323129985824
+    noise_std_dev: 0.05
+    update_rate: 50
+
+  - type: "flatland_plugins::ColorUpdate"
+    name: "color_changer"
+    body: "AGV6_product"
+    topic: "/AGV6/product_color"

@@ -1,0 +1,6 @@
+string current_task
+string product_type
+int32 id
+geometry_msgs/Pose2D destination
+---
+bool task_accepted

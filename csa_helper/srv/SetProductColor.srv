@@ -1,0 +1,5 @@
+string resource_name          # station or AGV
+std_msgs/ColorRGBA color
+bool enable                  # true = show product, false = hide
+---
+bool success

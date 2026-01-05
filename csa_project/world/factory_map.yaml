@@ -1,0 +1,6 @@
+image: /home/vscode/trsa_ws/src/csa_project/world/factory_map.png
+resolution: 0.05 # meters per pixel
+origin: [0.0, 0.0, 0.0] # map origin in meters
+negate: 0
+occupied_thresh: 0.65
+free_thresh: 0.196

@@ -1,0 +1,75 @@
+bodies:
+  - name: base
+    type: static
+    color: [0.0, 0.0, 0.0, 1.0] # orange
+    footprints:
+      - type: polygon
+        points:
+          # Rectangle: 1.0 m x 0.6 m
+          - [-0.5, -0.3]
+          - [0.5, -0.3]
+          - [0.5, 0.3]
+          - [-0.5, 0.3]
+        density: 0
+        layers: ["base_layer"]
+        friction: 1.0
+        restitution: 0.0
+
+  # --- Operational light ---
+  - name: light
+    type: static
+    color: [0.0, 1.0, 0.0, 1.0] # green
+    footprints:
+      - type: circle
+        radius: 0.1 # 10 cm radius
+        center: [0.6, 0.0] # offset to the right of the rectangle
+        density: 0
+        layers: ["base_layer"]
+        friction: 0.0
+        restitution: 0.0
+
+  - name: product
+    type: static
+    color: [0.0, 0.0, 0.0, 0.0] # orange
+    footprints:
+      - type: polygon
+        points:
+          # Rectangle: 1.0 m x 0.6 m
+          - [-0.2, -0.1]
+          - [0.2, -0.1]
+          - [0.2, 0.1]
+          - [-0.2, 0.1]
+        density: 0
+        layers: ["base_layer"]
+        friction: 1.0
+        restitution: 0.0
+
+  - name: board # Used for the robot to dock
+    type: static
+    color: [1.0, 1.0, 0.0, 1.0] # yellow
+    footprints:
+      - type: polygon
+        points:
+          - [-0.5, -0.3]
+          - [-0.5, -0.6]
+          - [0.5, -0.6]
+          - [0.5, -0.3]
+        density: 0
+        layers: ["blank_layer"]
+        friction: 1.0
+        restitution: 0.0
+
+# --- Joints ---
+joints: []
+
+# --- Plugins ---
+plugins:
+  - type: "flatland_plugins::ColorUpdate"
+    name: "light_changer"
+    body: "light"
+    topic: "light_color"
+
+  - type: "flatland_plugins::ColorUpdate"
+    name: "product_color"
+    body: "product"
+    topic: "product_color"

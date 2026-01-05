@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>csa_project</name>
+  <version>0.1.0</version>
+  <description>CSA project simulation with Flatland and RViz</description>
+
+  <maintainer email="vscode@todo.todo">vscode</maintainer>
+  <license>TODO</license>
+
+  <!-- Build dependencies -->
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_python</buildtool_depend>
+  <build_depend>rosidl_default_generators</build_depend>
+
+  <!-- Runtime dependencies -->
+  <depend>csa_helper</depend>
+  
+  <exec_depend>rosidl_default_runtime</exec_depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>flatland_server</exec_depend>
+  <exec_depend>nav2_bringup</exec_depend>
+  <exec_depend>rviz2</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+  <member_of_group>rosidl_interface_packages</member_of_group>
+  
+  <!-- Launch dependencies -->
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>
