@@ -25,6 +25,13 @@ def generate_launch_description():
         output="screen",
     )
 
+    rl_action_node = Node(
+        package="csa_project",
+        executable="rl_action",
+        name="rl_action",
+        output="screen",
+    )
+
     change_color_node = Node(
         package="csa_project",
         executable="set_product_color",
@@ -37,6 +44,7 @@ def generate_launch_description():
             resource_controller_node,
             gui_node,
             execute_skill_node,
+            rl_action_node,
             change_color_node,
         ]
     )

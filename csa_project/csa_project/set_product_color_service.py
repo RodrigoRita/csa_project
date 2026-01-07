@@ -26,7 +26,7 @@ class ProductBodyService(Node):
         if resource_name not in self.publishers:
             self.publishers[resource_name] = self.create_publisher(
                 ColorRGBA,
-                f"{resource_name}/product_color",
+                f"/{resource_name}/product_color",
                 10,
             )
         return self.publishers[resource_name]

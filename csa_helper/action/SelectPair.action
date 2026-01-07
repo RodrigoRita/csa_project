@@ -1,0 +1,30 @@
+# =======================
+# Goal
+# =======================
+string task_name
+string product_name
+
+# Stations that can execute the task
+string[] station_names
+float32[] station_x
+float32[] station_y
+bool[] station_occupied
+
+# AGVs
+string[] agv_names
+float32[] agv_x
+float32[] agv_y
+bool[] agv_occupied
+
+---
+# =======================
+# Result
+# =======================
+string chosen_station
+string chosen_agv
+
+---
+# =======================
+# Feedback
+# =======================
+float32 confidence

@@ -43,11 +43,6 @@ class OrderAgent(Node):
         # Publishers
         self.order_status_pub = self.create_publisher(Bool, f"/order_status", 10)
 
-        # Subscribers
-        self.next_product_subscription = self.create_subscription(
-            Bool, "/next_product", self.check_next_product, 10
-        )
-
         # Clients
         self.product_type_client = self.create_client(
             GetProductTypes, "/get_product_types"
@@ -55,6 +50,13 @@ class OrderAgent(Node):
 
         while not self.product_type_client.wait_for_service(timeout_sec=1.0):
             self.get_logger().info("Waiting for /get_product_types service...")
+
+    # Subscribers
+    def create_next_product_subscriber(self, product, index):
+        product_name = f"{product}_{index}"
+        self.next_product_subscription = self.create_subscription(
+            Bool, f"{product_name}/next_product", self.check_next_product, 10
+        )
 
     # Listeners
     def check_next_product(self, msg):
@@ -124,6 +126,7 @@ class OrderAgent(Node):
             product_type = self.order[i]
             if i == 0:
                 self.launch_product_node(product_type, i)
+                self.create_next_product_subscriber(product_type, i)
             else:
                 # Wait until next_product becomes True
                 while not self.next_product:
@@ -133,9 +136,17 @@ class OrderAgent(Node):
                 # reset the flag and launch next product
                 self.next_product = False
                 self.launch_product_node(product_type, i)
-        completed = Bool()
-        completed.data = True
-        self.order_status_pub.publish(completed)
+                self.create_next_product_subscriber(product_type, i)
+
+        self.order_check_timer = self.create_timer(0.5, self.order_completed)
+
+    def order_completed(self):
+        node_names = self.get_node_names()
+        product_names = [n for n in node_names if "product" in n]
+        if not product_names:
+            completed = Bool()
+            completed.data = True
+            self.order_status_pub.publish(completed)
 
 
 def main(args=None):

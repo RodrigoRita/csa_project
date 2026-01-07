@@ -77,7 +77,9 @@ class ProductAgent(Node):
         self.resources_ready = False
 
         # Publishers
-        self.next_product_pub = self.create_publisher(Bool, "/next_product", 10)
+        self.next_product_pub = self.create_publisher(
+            Bool, f"{self.product_name}/next_product", 10
+        )
 
         # Subscribers (they will be initialized dynamically)
         self.goal_subs = {}
@@ -114,6 +116,7 @@ class ProductAgent(Node):
         """Start the next task from the execution plan."""
         if self.current_task_index >= len(self.execution_plan):
             self.get_logger().info("Product execution completed.")
+            self.shutdown()
             return
 
         self.current_task = self.execution_plan[self.current_task_index]
@@ -133,6 +136,32 @@ class ProductAgent(Node):
         req.location_str = self.current_location_str
 
         self.rc_client.call_async(req)
+
+    def shutdown(self):
+        self.get_logger().info(
+            f"[PA] Shutting down ProductAgent for {self.product_name}"
+        )
+
+        # Cancel retry timers
+        if self.retry_skill_timer:
+            self.retry_skill_timer.cancel()
+        if self.retry_task_timer:
+            self.retry_task_timer.cancel()
+
+        # Destroy subscriptions
+        for sub in self.goal_subs.values():
+            self.destroy_subscription(sub)
+        for sub in self.skill_subs.values():
+            self.destroy_subscription(sub)
+
+        # Destroy clients
+        for client in self.transport_clients.values():
+            self.destroy_client(client)
+        for client in self.station_clients.values():
+            self.destroy_client(client)
+
+        # Shutdown node
+        self.destroy_node()
 
     # ---------------------------- CALLBACKS ---------------------------------
     def controller_response_callback(self, msg: ControllerResponse):

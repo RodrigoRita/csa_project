@@ -26,6 +26,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/ReserveStation.srv"
   "srv/GetProductTypes.srv"
   "action/ExecuteSkill.action"
+  "action/SelectPair.action"
   DEPENDENCIES std_msgs geometry_msgs
 )
 

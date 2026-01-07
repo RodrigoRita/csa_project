@@ -1,7 +1,7 @@
 bodies:
   - name: base
     type: static
-    color: [0.8, 0.5, 0.1, 1.0] # orange
+    color: [0.0, 0.0, 0.0, 1.0]
     footprints:
       - type: polygon
         points:

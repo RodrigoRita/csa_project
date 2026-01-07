@@ -1,7 +1,7 @@
 bodies:
   - name: AGV7_base_link
     type: dynamic
-    color: [1, 1, 1, 0.75]
+    color: [1.0, 0.7, 0, 1.00]
     footprints:
       - type: polygon
         density: 100
@@ -15,7 +15,7 @@ bodies:
           - [-0.515, 0.1685]
 
   - name: AGV7_left_wheel
-    color: [1, 1, 1, 0.75]
+    color: [1.0, 0.7, 0, 1.00]
     footprints:
       - type: polygon
         density: 1.0
@@ -27,7 +27,7 @@ bodies:
           - [-0.04375, -0.01275]
 
   - name: AGV7_right_wheel
-    color: [1, 1, 1, 0.75]
+    color: [1.0, 0.7, 0, 1.00]
     footprints:
       - type: polygon
         density: 1.0
@@ -39,7 +39,7 @@ bodies:
           - [-0.04375, -0.01275]
 
   - name: AGV7_caster_wheel
-    color: [0.7, 0.7, 0.7, 0.75]
+    color: [1.0, 0.7, 0, 0.7]
     footprints:
       - type: circle
         radius: 0.015

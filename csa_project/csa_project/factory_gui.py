@@ -53,6 +53,8 @@ class FactoryGUI(Node):
         self.currentAgvs = [1, 2]
         self.currentTasks = {"A": 4.0, "B": 4.0, "C": 5.0}
         self.order = []
+        self.rl_enabled = False  # initial state
+
         # ROS publishers
         self.order_pub = self.create_publisher(Order, "/new_order", 10)
 
@@ -65,6 +67,7 @@ class FactoryGUI(Node):
         self.agv_pub = self.create_publisher(Agv, "/new_agv", 10)
         self.agv_delete_pub = self.create_publisher(String, "/delete_agv", 10)
 
+        self.rl_status_pub = self.create_publisher(Bool, "/rl_enabled", 10)
         self.app = QApplication(sys.argv)
         self.window = QTabWidget()
 
@@ -191,6 +194,12 @@ class FactoryGUI(Node):
         self.send_order_btn.setEnabled(True)
         layout.addWidget(self.send_order_btn, alignment=Qt.AlignmentFlag.AlignRight)
 
+        # Activate RL button
+        self.RL_btn = QPushButton("RL")
+        self.RL_btn.clicked.connect(self.send_rl)
+        self.RL_btn.setEnabled(True)
+        layout.addWidget(self.RL_btn, alignment=Qt.AlignmentFlag.AlignLeft)
+
         self.order_status_label = QLabel("No active order")
         self.order_status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.order_status_label.setStyleSheet("font-weight: bold; color: gray;")
@@ -258,6 +267,29 @@ class FactoryGUI(Node):
             ]
         )
         self.get_logger().info(f"Spawned OrderAgent for order_id={self.id}")
+
+    def send_rl(self):
+        # Toggle state
+        self.rl_enabled = not self.rl_enabled
+
+        # Publish ROS message
+        msg = Bool()
+        msg.data = self.rl_enabled
+        self.rl_status_pub.publish(msg)
+
+        # Update button appearance
+        if self.rl_enabled:
+            self.RL_btn.setText("RL: ON")
+            self.RL_btn.setStyleSheet(
+                "background-color: green; color: white; font-weight: bold;"
+            )
+        else:
+            self.RL_btn.setText("RL: OFF")
+            self.RL_btn.setStyleSheet(
+                "background-color: red; color: white; font-weight: bold;"
+            )
+
+        self.get_logger().info(f"RL enabled: {self.rl_enabled}")
 
     # ---------------- Product Tab ----------------
     def build_product_tab(self):
@@ -431,7 +463,10 @@ class FactoryGUI(Node):
             self.currentStations[name].append(skill)
 
         x_str, y_str = self.resource_coord_input.text().split(",")
-        x, y = float(x_str), float(y_str)
+        x, y = (
+            float(x_str),
+            float(y_str) - 0.45,
+        )  # Use the coordinates set in the factory_world.yaml file and subtract 0.45 so that the goal is the station's AGV landing board
         location = Pose2D()
         location.x, location.y, location.theta = x, y, 0.0
         self.station_callback(

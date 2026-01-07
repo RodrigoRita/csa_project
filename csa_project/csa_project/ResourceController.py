@@ -2,9 +2,11 @@ import math
 import subprocess
 
 import rclpy
+from csa_helper.action import SelectPair
 from csa_helper.msg import Agv, ControllerResponse, Order, Product, Station
 from csa_helper.srv import GetResources, ProductResource, ReserveStation
 from geometry_msgs.msg import Pose2D, PoseWithCovarianceStamped
+from rclpy.action import ActionClient
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy
 from std_msgs.msg import Bool, String
@@ -17,6 +19,8 @@ class ResourceController(Node):
     def __init__(self):
         super().__init__("ResourceController")
 
+        # USE RL?
+        self.RL = False
         # Product types and their execution plans
         self.current_product_types = {
             "A": ["pickUp", "A", "B", "drop"],
@@ -89,6 +93,17 @@ class ResourceController(Node):
             depth=10,
         )
 
+        self.rl_enabled = self.create_subscription(
+            Bool,
+            "/rl_enabled",
+            self.rl_enabled_callback,
+            10,
+        )
+
+        # Action
+        if self.RL:
+            self.rl_client = ActionClient(self, SelectPair, "select_pair")
+
     def create_agv_pose_subscription(self, agv_name):
         self.create_subscription(
             PoseWithCovarianceStamped,
@@ -143,7 +158,12 @@ class ResourceController(Node):
         )
         self.get_logger().info(f"Spawned TransportAgent: {agv_name}")
 
-    # --- Subscribers ---
+    # --- Subscribers Callbacks ---
+    def rl_enabled_callback(self, msg):
+        if msg is None:
+            return
+        self.RL = msg.data
+
     def new_product_listener(self, msg):
         if msg is None or msg.name in self.current_product_types:
             return
@@ -358,43 +378,105 @@ class ResourceController(Node):
 
         self.get_logger().info(f"[RC] Stations capable of task {task}: {stations}")
         ## ---No RL for testing
-        # --- Select station (placeholder: take first non-occupied) ---
-        free_stations = [
-            station
-            for station in stations
-            if not station.occupied or not station.name in self.stations_shutting_down
-        ]
-        if not free_stations:
-            self.get_logger().warn(
-                f"[RC] No free stations available for task {task}. Will retry later."
-            )
-            self.controller_response.product_name = self.product_name
-            self.controller_response.station = Station()  # Empty messages
-            self.controller_response.agv.name = ""
-            self.controllerResponse.publish(self.controller_response)
-        else:
-            chosen_station = free_stations[0]
-            request = ReserveStation.Request()
-            request.occupied = True
-            client = self.occupied_stations[chosen_station.name]
-            client.call_async(request)
+        if not self.RL:
+            # --- Select station (placeholder: take first non-occupied) ---
+            free_stations = [
+                station
+                for station in stations
+                if not station.occupied
+                or not station.name in self.stations_shutting_down
+            ]
+            if not free_stations:
+                self.get_logger().warn(
+                    f"[RC] No free stations available for task {task}. Will retry later."
+                )
+                self.controller_response.product_name = self.product_name
+                self.controller_response.station = Station()  # Empty messages
+                self.controller_response.agv.name = ""
+                self.controllerResponse.publish(self.controller_response)
+            else:
+                chosen_station = free_stations[0]
+                request = ReserveStation.Request()
+                request.occupied = True
+                client = self.occupied_stations[chosen_station.name]
+                client.call_async(request)
 
-            # --- Select AGV ---
-            chosen_agv = self.select_best_agv(chosen_station)
+                # --- Select AGV ---
+                chosen_agv = self.select_best_agv(chosen_station)
 
-            self.controller_response.product_name = self.product_name
-            self.controller_response.sub_goal = self.sub_goal
-            self.controller_response.location = self.productsLocation[
-                self.product_name
-            ][self.current_product_localization]
-            self.controller_response.station = chosen_station
-            self.controller_response.agv.name = chosen_agv
-            self.controllerResponse.publish(self.controller_response)
+                self.controller_response.product_name = self.product_name
+                self.controller_response.sub_goal = self.sub_goal
+                self.controller_response.location = self.productsLocation[
+                    self.product_name
+                ][self.current_product_localization]
+                self.controller_response.station = chosen_station
+                self.controller_response.agv.name = chosen_agv
+                self.controllerResponse.publish(self.controller_response)
 
-            self.get_logger().info(
-                f"[RC] Final decision for product {self.product_name}: Station={chosen_station.name}, AGV={chosen_agv}"
-            )
+                self.get_logger().info(
+                    f"[RC] Final decision for product {self.product_name}: Station={chosen_station.name}, AGV={chosen_agv}"
+                )
             ## Using RL
+        else:
+            goal = SelectPair.Goal()
+            goal.task_name = task
+            goal.product_name = self.product_name
+
+            # Stations
+            for s in stations:
+                goal.station_names.append(s.name)
+                goal.station_x.append(s.location.x)
+                goal.station_y.append(s.location.y)
+                goal.station_occupied.append(s.occupied)
+
+            # AGVs
+            for agv, occupied in self.AGVs_status.items():
+                pose = self.AGV_poses.get(agv)
+                if pose is None:
+                    continue
+                goal.agv_names.append(agv)
+                goal.agv_x.append(pose[0])
+                goal.agv_y.append(pose[1])
+                goal.agv_occupied.append(occupied)
+
+            # Send action goal
+            self.rl_client.wait_for_server()
+            send_future = self.rl_client.send_goal_async(goal)
+            send_future.add_done_callback(self.rl_goal_response_cb)
+
+    def rl_goal_response_cb(self, future):
+        goal_handle = future.result()
+        if not goal_handle.accepted:
+            self.get_logger().warn("RL goal rejected")
+            return
+
+        result_future = goal_handle.get_result_async()
+        result_future.add_done_callback(self.rl_result_cb)
+
+    def rl_result_cb(self, future):
+        result = future.result().result
+
+        chosen_station = result.chosen_station
+        chosen_agv = result.chosen_agv
+
+        if chosen_station == "" or chosen_agv == "":
+            self.get_logger().warn("RL returned invalid assignment")
+            return
+
+        # Reserve station
+        req = ReserveStation.Request()
+        req.occupied = True
+        self.occupied_stations[chosen_station].call_async(req)
+
+        # Publish controller response
+        self.controller_response.product_name = self.product_name
+        self.controller_response.station.name = chosen_station
+        self.controller_response.agv.name = chosen_agv
+        self.controllerResponse.publish(self.controller_response)
+
+        self.get_logger().info(
+            f"[RL] Assigned Station={chosen_station}, AGV={chosen_agv}"
+        )
 
     def resource_response_callback(self, rname, future):
         """Asynchronously collect resource responses from each ResourceAgent."""
@@ -597,8 +679,10 @@ class ResourceController(Node):
         pose_input = Pose2D(x=3.2, y=5.0, theta=0.0)
         pose_output = Pose2D(x=3.2, y=15.0, theta=0.0)
         location_list = [
-            Pose2D(x=12.0, y=6.0, theta=0.0),
-            Pose2D(x=18.0, y=6.0, theta=0.0),
+            Pose2D(x=12.0, y=6.0 - 0.45, theta=0.0),
+            Pose2D(
+                x=18.0, y=6.0 - 0.45, theta=0.0
+            ),  # -0.45 is it so that the robot land at the Station agv landing board
         ]
 
         # Spawn warehouse input/output
